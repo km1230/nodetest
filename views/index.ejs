@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Node Test</title>
+	</head>
+	<body>
+		<% result.forEach(r=>{%>
+		<div class='row'>
+			<div><%= r.title %>: <%= r.date %></div>
+		</div>
+		<%});%>
+		<div class='row'>
+			<form method='POST' action='./newpost'>
+				<label for='title'>Title</label><input type='text' name='title'>
+				<label for='date'>Date</label><input type='hidden' name='date' id='date'>
+				<button type='submit'>Submit</button>
+			</form>
+		</div>
+	</body>
+	<script>
+		let now = new Date();
+		let d = now.getDate();
+		let m = now.getMonth();
+		let y = now.getFullYear();
+		document.querySelector('#date').value = `${d}-${m}-${y}`;
+	</script>
+</html>
