@@ -33,9 +33,9 @@ app.get('/', (req, res)=>{
 	});
 });
 
-//Edit Hero
+//Get Hero
 app.get('/edit/:key', (req, res)=>{
-	db.collection('heros').find({_id: req.params.key}).toArray((err, result)=>{
+	db.collection('heros').find({_id: parseInt(req.params.key)}).toArray((err, result)=>{
 		if(result.length<1){
 			res.render('404.ejs')
 		} else {
@@ -61,7 +61,7 @@ app.post('/post', (req, res)=>{
 	});
 });
 
-//Update
+//Update hero
 app.post('/update', (req, res)=>{
 	db.collection('heros').updateOne(
 		{_id: req.body._id},
@@ -74,4 +74,11 @@ app.post('/update', (req, res)=>{
 		}
 	);
 	res.redirect('/')
+});
+
+//Remove hero
+app.get('/delete/:key', (req, res)=>{
+	db.collection('heros').deleteOne({_id: parseInt(req.params.key)}, (err, result)=>{
+		res.redirect('/')
+	});
 });
