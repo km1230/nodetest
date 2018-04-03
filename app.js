@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 //mongoDB
 const MongoClient = require('mongodb').MongoClient;
-let db;
+let db, all_hero, seq, success;
 //ejs
 app.set('view engine', 'ejs');
 //------------------------------------------------------
@@ -23,34 +23,50 @@ MongoClient.connect(process.env.DB_SETTING, (err, client)=>{
 });
 
 
-//Get
+//index
 app.get('/', (req, res)=>{
-	db.collection('posts').find({}).toArray((err, result)=>{
+	db.collection('heros').find({}).toArray((err, result)=>{
 		if(err){
 			console.log(err)
 		} else {
-			res.render('index.ejs', {result: result})
+			res.render('index.ejs', {result: result});
+		};
+	});
+});
+
+//Edit Hero
+app.get('/edit/:key', (req, res)=>{
+	db.collection('heros').find({_id: req.params.key}).toArray((err, result)=>{
+		if(result.length<1){
+			res.render('404.ejs')
+		} else {
+			res.render('edit.ejs', {result: result})
 		}
 	})
 });
 
-//Post
-app.post('/newpost', (req, res)=>{
-	db.collection('posts').save(req.body, (err, result)=>{
-		if(err){console.log(err)};
-		//res.send(req.body)
-		res.redirect('/')
+//Add hero
+app.post('/post', (req, res)=>{
+	db.collection('heros').save(req.body, (err, result)=>{
+		if(err){
+			console.log(err)
+		} else {
+			res.redirect('/')
+		}
 	});
 });
 
-/*
-Get by key
-app.get('/post/:id', (req, res)=>{
-	let post = posts.find(p=>p.id === parseInt(req.params.id));
-	if(post){
-		res.send(post);
-	} else {
-		res.send('No such post :(');
-	};
+//Update
+app.post('/update', (req, res)=>{
+	db.collection('heros').updateOne(
+		{_id: req.body._id},
+		{
+			$set: {
+				win: req.body.win, 
+				on_fire: req.body.on_fire,
+				ed_ratio: req.body.ed_ratio 
+			}
+		}
+	);
+	res.redirect('/')
 });
-*/
