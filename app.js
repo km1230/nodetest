@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 //mongoDB
 const MongoClient = require('mongodb').MongoClient;
-let db, all_hero, seq, success;
+let db, counter;
 //ejs
 app.set('view engine', 'ejs');
 //------------------------------------------------------
@@ -22,7 +22,6 @@ MongoClient.connect(process.env.DB_SETTING, (err, client)=>{
 	app.listen(port, ()=>console.log(`Listening on port ${port}...`));
 });
 
-
 //index
 app.get('/', (req, res)=>{
 	db.collection('heros').find({}).toArray((err, result)=>{
@@ -30,7 +29,7 @@ app.get('/', (req, res)=>{
 			console.log(err)
 		} else {
 			res.render('index.ejs', {result: result});
-		};
+		}
 	});
 });
 
@@ -47,12 +46,18 @@ app.get('/edit/:key', (req, res)=>{
 
 //Add hero
 app.post('/post', (req, res)=>{
-	db.collection('heros').save(req.body, (err, result)=>{
-		if(err){
-			console.log(err)
-		} else {
+	db.collection('counter').findAndModify({_id: 'hero_id'},{},{$inc:{seq:1}}, {new: true},(err, result)=>{
+		counter = result.value.seq;
+		db.collection('heros').save({
+			_id: counter,
+			hero: req.body.hero,
+			win: req.body.win,
+			on_fire: req.body.on_fire,
+			ed_ratio: req.body.ed_ratio
+		}, (err, result)=>{
+			if(err){console.log(err)};
 			res.redirect('/')
-		}
+		})
 	});
 });
 
